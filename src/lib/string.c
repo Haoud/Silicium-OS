@@ -63,7 +63,6 @@ int snprintf(char * str, size_t n, const char * fmt, ...)
 	return len;
 }
 
-
 #define VSNPRINTF_HASHTAG	0x01
 #define VSNPRINTF_ZERO		0x02
 #define VSNPRINTF_MINUS		0x04

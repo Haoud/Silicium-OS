@@ -2,3 +2,4 @@
 bin/
 src/bin/
 src/.vscode
+iso/boot/KERNEL32.ELF

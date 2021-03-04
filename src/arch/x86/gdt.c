@@ -46,7 +46,7 @@ void gdt_init(void)
 	gdtr.base = (uint32_t)(gdt);
 
 	/* Charge la GDT dans le registre approprié, puis recharge les sélecteurs */
-    asm volatile("lgdt %0" :: "m"(gdtr));
+	asm volatile("lgdt %0" :: "m"(gdtr));
 	asm volatile (" mov ax, %0		\n\
 					mov ss, ax		\n\
 					mov ax, %1		\n\

@@ -60,6 +60,7 @@ typedef native_t ptr_t;
 #define _initdata				__attribute__((section(".init.data")))
 #define _initrodata				__attribute__((section(".init.rotdata")))
 
+#define _interrupt                  _cdecl _asmlinkage
 #define _irq                        _cdecl _asmlinkage
 #define _asmlinkage                 __attribute__((regparm(0)))
 #define likely(expr)		        __builtin_expect(!!(expr), 1)

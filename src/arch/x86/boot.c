@@ -19,6 +19,7 @@
 #include <grub.h>
 #include <kernel.h>
 #include <arch/x86/gdt.h>
+#include <arch/x86/idt.h>
 #include <driver/vga/vga.h>
 
 /**
@@ -28,7 +29,7 @@
  * 
  * @note Le processeur minimum supporté est le Pentium Pro (i686). Toute tentative de 
  * boot à partir d'une processeur moins récent se terminera rapidement par un échec car
- * le poit d'entrée à besoin de l'extension PSE de CR4 pour initialiser la pagination
+ * le point d'entrée à besoin de l'extension PSE de CR4 pour initialiser la pagination
  * 
  */
 _asmlinkage void boot_x86(struct multiboot_info *info)
@@ -40,5 +41,6 @@ _asmlinkage void boot_x86(struct multiboot_info *info)
 	multiboot_translate_addr((ptr_t *)(&info->mmap_addr));
 
 	gdt_init();
+	idt_init();
 	for(;;);
 }

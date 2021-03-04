@@ -2,6 +2,7 @@ SRCDIR = $(shell pwd)/
 OBJDIR = bin/
 
 CC = i686-elf-gcc
+CFLAGS = 
 CFLAGS = -g -D_DEBUG
 CFLAGS += -std=gnu17 -masm=intel
 CFLAGS += -c -O2 -flto -mregparm=3 -march=i686
