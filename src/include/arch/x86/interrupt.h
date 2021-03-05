@@ -24,67 +24,18 @@ _no_inline _interrupt								\
 void _naked name(void)								\
 {													\
 	asm volatile("  push 0							\n\
-					pushad							\n\
-					sub esp, 2						\n\
-					pushw ds						\n\
-					pushw es						\n\
-					pushw fs						\n\
-					pushw gs						\n\
-					pushw ss						\n\
-					mov ax, 0x10					\n\
-					mov ds, ax						\n\
-					mov es, ax						\n\
-					mov fs, ax						\n\
-					mov gs, ax						\n\
-					mov ax, 0x18					\n\
-					mov ss, ax						\n\
-					push esp						\n\
-					call %0							\n\
-					call terminate_interrupt		\n\
-					add esp,4						\n\
-					popw ss							\n\
-					popw gs							\n\
-					popw fs							\n\
-					popw es							\n\
-					popw ds							\n\
-					add esp, 2						\n\
-					popad							\n\
-					add esp, 4						\n\
-					iretd" :: "i"(fn));				\
+					push %0							\n\
+					jmp common_int_handler" 		\
+					:: "i"(fn));					\
 }
 
 #define CREATE_EXCPT_HANDLER(name, fn)				\
 _no_inline _interrupt								\
 void _naked name(void)								\
 {													\
-	asm volatile("	pushad							\n\
-					sub esp, 2						\n\
-					pushw ds						\n\
-					pushw es						\n\
-					pushw fs						\n\
-					pushw gs						\n\
-					pushw ss						\n\
-					mov ax, 0x10					\n\
-					mov ds, ax						\n\
-					mov es, ax						\n\
-					mov fs, ax						\n\
-					mov gs, ax						\n\
-					mov ax, 0x18					\n\
-					mov ss, ax						\n\
-					push esp						\n\
-					call %0							\n\
-					call terminate_interrupt		\n\
-					add esp,4						\n\
-					popw ss							\n\
-					popw gs							\n\
-					popw fs							\n\
-					popw es							\n\
-					popw ds							\n\
-					add esp, 2						\n\
-					popad							\n\
-					add esp, 4						\n\
-					iretd" :: "i"(fn));				\
+	asm volatile("	push %0							\n\
+					jmp common_int_handler" 		\
+				:: "i"(fn));						\
 }
 
-void _interrupt default_int(void);
 void _interrupt default_int_handler(void);

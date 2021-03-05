@@ -42,5 +42,6 @@ _asmlinkage void boot_x86(struct multiboot_info *info)
 
 	gdt_init();
 	idt_init();
+	asm("sti");
 	for(;;);
 }
