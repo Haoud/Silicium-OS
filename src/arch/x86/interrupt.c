@@ -20,20 +20,35 @@
 #include <arch/x86/cpu.h>
 #include <arch/x86/interrupt.h>
 
-_interrupt
-void default_int(void)
+/**
+ * @brief Le code exécuté par défaut lors d'une interruption 
+ * qui n'est pas géré par le noyau
+ * 
+ */
+_interrupt void default_int(void)
 {
 	printk(KERN_CRIT "Interruption inconnue survenue\n");
 }
 
-_used _interrupt
-void terminate_interrupt(cpu_kstate_t *state)
+
+/**
+ * @brief Cette fonction permet d'exécuter certaines fonctions importantes
+ * avant que terminer une interruption
+ * 
+ * @param state L'état du CPU avant l'interruption
+ */
+_used _interrupt void terminate_interrupt(cpu_kstate_t *state)
 {
 
 }
 
-_used _naked
-void common_int_handler()
+/**
+ * @brief Cette fonction est communes à toutes les interruptions, elle sauvegarde
+ * les registres afin de pouvoir les restorer à la fin de l'interruption et 
+ * appele ensuite la fonction interruption_manager, puis termine l'interruption
+ * en sautant à la fonction return_from_interrupt 
+ */
+_used _naked void common_int_handler()
 {
 	asm volatile("	pushad							\n\
 					sub esp, 2						\n\
@@ -52,16 +67,26 @@ void common_int_handler()
 					push esp						\n\
 					call interruption_manager		\n\
 					jmp return_from_interrupt");
+	_unreachable();
 }
 
-_used _interrupt
-void interruption_manager(cpu_kstate_t *state)
+/**
+ * @brief Cette fonction très simple appelle la fonction concerné par
+ * l'interruption qui à appelé cette fonction
+ * 
+ * @param state L'état du CPU avant l'interruption
+ */
+_used _interrupt void interruption_manager(cpu_kstate_t *state)
 {
 	asm volatile("call %0" :: "m"(state->free_data));
 }
 
-_used _naked
-void return_from_interrupt()
+/**
+ * @brief Cette fonction est commune à toutes les interruptions, elle appelle
+ * la fonction terminate_interrupt puis restore les registres et termine
+ * correctement l'interruption
+ */
+_used _naked void return_from_interrupt()
 {
 	asm volatile("	call terminate_interrupt		\n\
 					add esp,4						\n\
@@ -74,6 +99,7 @@ void return_from_interrupt()
 					popad							\n\
 					add esp, 8						\n\
 					iretd");
+	_unreachable();
 }
 
 CREATE_INT_HANDLER(default_int_handler, default_int)

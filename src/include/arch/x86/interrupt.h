@@ -20,22 +20,24 @@
 #include <kernel.h>
 
 #define CREATE_INT_HANDLER(name, fn)				\
-_no_inline _interrupt								\
+_no_inline _naked									\
 void _naked name(void)								\
 {													\
 	asm volatile("  push 0							\n\
 					push %0							\n\
 					jmp common_int_handler" 		\
 					:: "i"(fn));					\
+	_unreachable();									\
 }
 
 #define CREATE_EXCPT_HANDLER(name, fn)				\
-_no_inline _interrupt								\
+_no_inline _naked									\
 void _naked name(void)								\
 {													\
 	asm volatile("	push %0							\n\
 					jmp common_int_handler" 		\
 				:: "i"(fn));						\
+	_unreachable();									\
 }
 
-void _interrupt default_int_handler(void);
+void _naked default_int_handler(void);
