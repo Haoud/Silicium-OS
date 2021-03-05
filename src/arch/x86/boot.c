@@ -20,6 +20,7 @@
 #include <kernel.h>
 #include <arch/x86/gdt.h>
 #include <arch/x86/idt.h>
+#include <arch/x86/tss.h>
 #include <driver/vga/vga.h>
 #include <arch/x86/exception.h>
 
@@ -43,6 +44,7 @@ _asmlinkage void boot_x86(struct multiboot_info *info)
 
 	gdt_init();
 	idt_init();
+	tss_install();
 	exceptions_init();
 
 	asm("sti");
