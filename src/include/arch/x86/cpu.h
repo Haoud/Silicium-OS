@@ -19,6 +19,104 @@
 #pragma once
 #include <kernel.h>
 
+/* Important: Ne concerne que le CPU qui exécute le code ! */
+#define cli()		asm volatile("cli")
+#define sti()		asm volatile("sti")
+#define hlt()		asm volatile("hlt")
+#define clts()		asm volatile("clts")
+
+#define cpu_relax()						asm volatile("pause" ::: "memory")
+#define clear_task_switched()			clts()
+#define enable_interruption()			sti()
+#define disable_interruption()			cli()
+
+#define CPUID_GET_FEATURE			1
+#define CPUID_GET_CAPABILITIES		0x80000007
+
+#define CPUID_EDX_FEATURE_FPU		0x00000001
+#define CPUID_EDX_FEATURE_VME		0x00000002
+#define CPUID_EDX_FEATURE_DE		0x00000004
+#define CPUID_EDX_FEATURE_PSE		0x00000008
+#define CPUID_EDX_FEATURE_TSC		0x00000010
+#define CPUID_EDX_FEATURE_MSR		0x00000020
+#define CPUID_EDX_FEATURE_PAE		0x00000040
+#define CPUID_EDX_FEATURE_MCE		0x00000080
+#define CPUID_EDX_FEATURE_CX8		0x00000100
+#define CPUID_EDX_FEATURE_APIC		0x00000200
+#define CPUID_EDX_FEATURE_SEP		0x00000800
+#define CPUID_EDX_FEATURE_MTRR		0x00001000
+#define CPUID_EDX_FEATURE_PGE		0x00002000
+#define CPUID_EDX_FEATURE_MCA		0x00008000
+#define CPUID_EDX_FEATURE_CMOV		0x00010000
+#define CPUID_EDX_FEATURE_PAT		0x00020000
+#define CPUID_EDX_FEATURE_PSE36		0x00040000
+#define CPUID_EDX_FEATURE_PSN		0x00080000
+#define CPUID_EDX_FEATURE_CLF		0x00100000
+#define CPUID_EDX_FEATURE_DTES		0x00200000
+#define CPUID_EDX_FEATURE_ACPI		0x00400000
+#define CPUID_EDX_FEATURE_MMX		0x00800000
+#define CPUID_EDX_FEATURE_FXSR		0x01000000
+#define CPUID_EDX_FEATURE_SSE		0x02000000
+#define CPUID_EDX_FEATURE_SSE2		0x04000000
+#define CPUID_EDX_FEATURE_SS		0x08000000
+#define CPUID_EDX_FEATURE_HTT		0x10000000
+#define CPUID_EDX_FEATURE_TM1		0x20000000
+#define CPUID_EDX_FEATURE_IA64		0x40000000
+#define CPUID_EDX_FEATURE_PBE		0x80000000
+
+#define CPUID_EDX_CAPABILITIES_ITSC	0x80000100
+
+static inline void set_task_switched(void)
+{
+	asm volatile("	mov eax, cr0	\n\
+					or eax, 0x08	\n\
+					mov cr0, eax" ::: "eax");
+}
+
+static inline void cpuid_count(native_t code, native_t count, 
+							   native_t *eax, native_t *ebx,
+							   native_t *ecx, native_t *edx)
+{
+	asm volatile("cpuid" : "=a"(*eax), "=b"(*ebx), "=c"(*ecx), "=d"(*edx) 
+						 : "0"(code), "2"(count)
+						 : "memory");
+}
+
+static inline void cpuid(native_t code,
+						 native_t *eax, native_t *ebx,
+						 native_t *ecx, native_t *edx)
+{
+	cpuid_count(code, 0, eax, ebx, ecx, edx);
+}
+
+static native_t cpuid_eax(native_t code)
+{
+	native_t eax, ebx, ecx, edx;
+	cpuid(code, 0, &eax, &ebx, &ecx, &edx);
+	return eax;
+}
+
+static native_t cpuid_ebx(native_t code)
+{
+	native_t eax, ebx, ecx, edx;
+	cpuid(code, 0, &eax, &ebx, &ecx, &edx);
+	return ebx;
+}
+
+static native_t cpuid_ecx(native_t code)
+{
+	native_t eax, ebx, ecx, edx;
+	cpuid(code, 0, &eax, &ebx, &ecx, &edx);
+	return ecx;
+}
+
+static native_t cpuid_exx(native_t code)
+{
+	native_t eax, ebx, ecx, edx;
+	cpuid(code, 0, &eax, &ebx, &ecx, &edx);
+	return edx;
+}
+
 struct cpu_kstate
 {
 	uint16_t ss;

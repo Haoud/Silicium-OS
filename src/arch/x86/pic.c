@@ -48,15 +48,15 @@ void pic_remap_irq(void)
 	outbp(PIC_MASTER_CMD, PIC_ICW1_NEED_ICW4 | PIC_ICW1_INIT_REQUIRED);
 	outbp(PIC_SLAVE_CMD, PIC_ICW1_NEED_ICW4 | PIC_ICW1_INIT_REQUIRED);
 
-	outbp(PIC_MASTER_CMD, IRQ_BASE);
-	outbp(PIC_SLAVE_CMD, IRQ_BASE + IRQ_PER_PIC);
+	outbp(PIC_MASTER_DATA, IRQ_BASE);
+	outbp(PIC_SLAVE_DATA, IRQ_BASE + IRQ_PER_PIC);
 
-	outbp(PIC_MASTER_CMD, 4);		// Informer au PIC maître que un PIC esclave est relié à l'IRQ 2
-	outbp(PIC_SLAVE_CMD, 2);		// Informer au PIC esclave qu'il est relié à l'IRQ 2 du PIC maître
+	outbp(PIC_MASTER_DATA, 4);		// Informer au PIC maître que un PIC esclave est relié à l'IRQ 2
+	outbp(PIC_SLAVE_DATA, 2);		// Informer au PIC esclave qu'il est relié à l'IRQ 2 du PIC maître
 
 	// Initialise du PIC pour les processeur 8086 et ses descendants (i386, i486, i586...)
-	outbp(PIC_MASTER_CMD, PIC_ICW4_8086);
-	outbp(PIC_SLAVE_CMD, PIC_ICW4_8086);
+	outbp(PIC_MASTER_DATA, PIC_ICW4_8086);
+	outbp(PIC_SLAVE_DATA, PIC_ICW4_8086);
 }
 
 /**

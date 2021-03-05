@@ -17,6 +17,7 @@
  * along with Silicium OS.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <lib/spinlock.h>
+#include <arch/x86/cpu.h>
 
 void spin_init(spinlock_t *spin)
 {
@@ -27,7 +28,7 @@ void spin_lock(spinlock_t *spin)
 {
 	while (__sync_lock_test_and_set(&spin->lock, 1)) {
 		while (spin->lock) {
-			asm volatile("pause" ::: "memory");
+			cpu_relax();
 		}	
 	}
 }

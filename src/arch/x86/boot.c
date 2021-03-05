@@ -20,6 +20,7 @@
 #include <kernel.h>
 #include <arch/x86/gdt.h>
 #include <arch/x86/idt.h>
+#include <arch/x86/pic.h>
 #include <arch/x86/tss.h>
 #include <driver/vga/vga.h>
 #include <arch/x86/exception.h>
@@ -42,9 +43,10 @@ _asmlinkage void boot_x86(struct multiboot_info *info)
 	info = multiboot_translate_ptr(info);
 	multiboot_translate_addr((ptr_t *)(&info->mmap_addr));
 
-	gdt_init();
 	idt_init();
+	gdt_init();
 	tss_install();
+	pic_remap_irq();
 	exceptions_init();
 
 	asm("sti");
