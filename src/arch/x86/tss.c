@@ -25,6 +25,9 @@
 
 static struct tss tss;
 
+/**
+ * @brief Permet d'initialiser et d'installer le TSS
+ */
 void tss_install(void)
 {
 	memset(&tss, 0, sizeof(struct tss));
@@ -34,6 +37,12 @@ void tss_install(void)
 	asm volatile("ltr ax" :: "a"(TSS_SELECTOR));
 }
 
+/**
+ * @brief Permet de définir la pile noyau qui sera utilisé lors d'une
+ * interruption s'il y a un changement de privilège
+ * 
+ * @param stack L'adresse de la pile
+ */
 void tss_set_kernel_stack(ptr_t stack)
 {
 	tss.ss0 = GDT_KSTACK_SELECTOR;

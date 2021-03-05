@@ -34,6 +34,7 @@ if(!(cond)){												\
 #define assert(cond)
 #endif
 
+typedef unsigned int uint_t;
 typedef uint32_t native_t;
 typedef uint32_t atomic_t;
 typedef native_t ptr_t;
