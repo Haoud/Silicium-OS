@@ -92,28 +92,28 @@ static inline void cpuid(native_t code,
 static native_t cpuid_eax(native_t code)
 {
 	native_t eax, ebx, ecx, edx;
-	cpuid(code, 0, &eax, &ebx, &ecx, &edx);
+	cpuid_count(code, 0, &eax, &ebx, &ecx, &edx);
 	return eax;
 }
 
 static native_t cpuid_ebx(native_t code)
 {
 	native_t eax, ebx, ecx, edx;
-	cpuid(code, 0, &eax, &ebx, &ecx, &edx);
+	cpuid_count(code, 0, &eax, &ebx, &ecx, &edx);
 	return ebx;
 }
 
 static native_t cpuid_ecx(native_t code)
 {
 	native_t eax, ebx, ecx, edx;
-	cpuid(code, 0, &eax, &ebx, &ecx, &edx);
+	cpuid_count(code, 0, &eax, &ebx, &ecx, &edx);
 	return ecx;
 }
 
 static native_t cpuid_exx(native_t code)
 {
 	native_t eax, ebx, ecx, edx;
-	cpuid(code, 0, &eax, &ebx, &ecx, &edx);
+	cpuid_count(code, 0, &eax, &ebx, &ecx, &edx);
 	return edx;
 }
 
