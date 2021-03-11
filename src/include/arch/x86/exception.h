@@ -18,6 +18,7 @@
  */
 #pragma once
 #include <kernel.h>
+#include <arch/x86/gdt.h>
 
 #define EXCEPTION_NUMBER		32
 
@@ -53,5 +54,8 @@
 #define EXCEPTION_INTEL_RESERVED_12_ID				29
 #define EXCEPTION_INTEL_RESERVED_13_ID				30
 #define EXCEPTION_INTEL_RESERVED_14_ID				31
+
+#define set_exception(i, handler, dlp)		\
+	idt_set_handler(i, (uint32_t)(handler), GDT_KCODE_SELECTOR, dlp, IDT_INTERRUPT_GATE_32, 1);
 
 void exceptions_init(void);

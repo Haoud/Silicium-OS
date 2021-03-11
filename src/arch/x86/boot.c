@@ -23,6 +23,7 @@
 #include <arch/x86/pic.h>
 #include <arch/x86/tss.h>
 #include <driver/vga/vga.h>
+#include <arch/x86/paging.h>
 #include <arch/x86/exception.h>
 
 /**
@@ -48,6 +49,11 @@ _asmlinkage void boot_x86(struct multiboot_info *info)
 	tss_install();
 	pic_remap_irq();
 	exceptions_init();
+
+	paging_init();
+	paging_remove_identity();
+
+	printk("Done !");
 
 	asm("sti");
 	for(;;);

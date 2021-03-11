@@ -18,14 +18,9 @@
  */
 #include <lib/panic.h>
 #include <arch/x86/cpu.h>
-#include <arch/x86/gdt.h>
 #include <arch/x86/idt.h>
 #include <arch/x86/exception.h>
 #include <arch/x86/interrupt.h>
-
-#define set_exception(i, handler, dlp)		\
-	idt_set_handler(i, (uint32_t)(handler), GDT_KCODE_SELECTOR, dlp, IDT_INTERRUPT_GATE_32, 1);
-
 
 _interrupt void default_exception(cpu_kstate_t *state)
 {
