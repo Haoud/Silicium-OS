@@ -22,6 +22,7 @@
 #include <stddef.h>
 
 #define KERNEL_VBASE		0xC0000000		// TODO: Le déplacer hors de ce fichier
+#define KERNEL_PBASE		0x00100000		// TODO: Le déplacer hors de ce fichier
 
 // FIXME: Terminer les assertions
 #ifdef _DEBUG

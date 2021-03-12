@@ -32,11 +32,10 @@
 #define PAGE_SALIGN(addr)				(((addr) + PAGE_SIZE) & PAGE_MASK)
 #define PAGE_ALIGNED(addr)				(!((addr) & (PAGE_SIZE - 1)))
 
-#define MAP_ATOMIC						0x01
-#define MAP_READ						0x02
-#define MAP_WRITE						0x04
-#define MAP_EXECUTE						0x08
-#define MAP_USER						0x10
+#define PAGING_READ						0x01
+#define PAGING_WRITE					0x02
+#define PAGING_EXECUTE					0x04
+#define PAGING_USER						0x08
 
 #define fetch_cr2(x)					asm volatile("mov cr2, %0" : "=r"(x))
 #define set_current_pd(pd)				asm volatile("mov cr3, %0" :: "r"(pd) : "memory")
@@ -107,7 +106,8 @@ _always_inline void flush_tlb(void)
 }
 
 void paging_init(void);
-void paging_remove_identity(void);
+void paging_remove_identity(const vaddr_t end);
+
 void paging_unmap(const vaddr_t vaddr);
 paddr_t paging_get_physical(const vaddr_t addr);
 void paging_map_page(const vaddr_t vaddr, const vaddr_t paddr, int rights);

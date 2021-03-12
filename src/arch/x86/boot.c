@@ -22,6 +22,7 @@
 #include <arch/x86/idt.h>
 #include <arch/x86/pic.h>
 #include <arch/x86/tss.h>
+#include <core/mm/frame.h>
 #include <driver/vga/vga.h>
 #include <arch/x86/paging.h>
 #include <arch/x86/exception.h>
@@ -51,7 +52,8 @@ _asmlinkage void boot_x86(struct multiboot_info *info)
 	exceptions_init();
 
 	paging_init();
-	paging_remove_identity();
+	page_frame_init(info);
+	paging_remove_identity(get_end_address());
 
 	printk("Done !");
 

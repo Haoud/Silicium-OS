@@ -44,8 +44,6 @@ void list_remove(struct list_head *list)
 
 void list_add(struct list_head *list, struct list_head *entry)
 {
-	assert(!entry->prev);
-	assert(!entry->next);
 	assert(list->prev);
 	assert(list->next);
 

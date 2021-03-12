@@ -20,6 +20,7 @@
 #include <lib/memory.h>
 #include <arch/x86/cpu.h>
 #include <arch/x86/idt.h>
+#include <core/mm/frame.h>
 #include <arch/x86/paging.h>
 #include <arch/x86/interrupt.h>
 #include <arch/x86/exception.h>
@@ -51,35 +52,34 @@ void paging_init(void)
  * utilise l'extension PSE permettant de mapper en mémoire des pages de 4MO,
  * ce qui complique un peu les choses lorsque l'on souhaite enlever ce mapping
  */
-void paging_remove_identity(void)
+void paging_remove_identity(const vaddr_t end)
 {
-	const vaddr_t end_addr = PAGE_SALIGN((vaddr_t)&_end);
-	for(vaddr_t addr = end_addr + PDE_COVER_SIZE; 
-				addr < PAGING_MIRORRING_ADDR;
-				addr += PAGE_SIZE) {
-		pde_clear(addr);
-	}
+	const paddr_t pt = get_dma_frame();
+	memset((void *)(pt + PAGE_OFFSET), 0, PAGE_SIZE);			// On utilisera l'identity mapping pour accéder à l'adresse physique
 
-	// TODO: Allouer une table de page
-	uint32_t pt = 0;
-	memset((void *)pt, 0, PAGE_SIZE);
-
-	for(vaddr_t addr = end_addr & ~(PDE_COVER_SIZE - 1); 
-				addr < end_addr;
+	for(vaddr_t addr = end & ~(PDE_COVER_SIZE - 1); 
+				addr < end;
 				addr += PAGE_SIZE) {
-		pte_t *pte = (pte_t *)(pt + pt_offset(addr) * 4);
+		pte_t *pte = (pte_t *)(PAGE_OFFSET + pt + pt_offset(addr) * 4);
 		pte_set_address(pte, addr - PAGE_OFFSET);
 		pte->present = 1;
 		pte->write = 1;
 	}
+
+	for(vaddr_t addr = end + PDE_COVER_SIZE; 
+			addr < PAGING_MIRORRING_ADDR;
+			addr += PAGE_SIZE) {
+		pde_clear(addr);
+	}
+
 
 	/**
 	 * On change l'entrée du répertoire de page , on peut dire merci au TLB 
 	 * qui nous permet de modifier à la volée l'entrée du répertoire de page
 	 * utilisé actuellement par le noyau
 	 */
-	pde_t *pde = pd_entry(end_addr);
-	pde_set_address(pde, paging_get_physical(pt));
+	pde_t *pde = pd_entry(end);
+	pde_set_address(pde, pt);
 	pde->pse = 0;
 
 	flush_tlb();
@@ -108,7 +108,9 @@ void paging_unmap(const vaddr_t vaddr)
 	const paddr_t paddr = pte_get_address(pte);
 	memset(&pte, 0, sizeof(pte_t));
 
-	// TODO: Gérer la page physique et éventuellement la table de pages
+	// N'enlève pas la table de page si elle deviens libre
+	free_frame(ptaddr);
+	free_frame(paddr);
 	invlpg(vaddr);
 }
 
@@ -119,8 +121,7 @@ void paging_map_page(const vaddr_t vaddr, const vaddr_t paddr, int rights)
 
 	if(!pde->present) {
 		// Allouer la table de page
-		const paddr_t page = 0;			// TODO: Allouer une page physique
-
+		const paddr_t page = get_free_frame();
 		memset(&pde, 0, sizeof(pde_t));
 
 		pde->user = 1;
@@ -128,27 +129,24 @@ void paging_map_page(const vaddr_t vaddr, const vaddr_t paddr, int rights)
 		pde->present = 1;
 		pde_set_address(pde, page);
 
-		memset(pt_entry(vaddr & 0xFFC00000), 0, PAGE_SIZE);
+		memset(pt_entry(vaddr & 0xFFC00000), 0, PAGE_SIZE);		// Initialise la table de page à 0
 		invlpg(pte);
 	}
-	else if(!pte->present) {
-		// Référencer la table de page
-	}
-	else {
+	else if(pte->present) {
 		// Page déjà utilisé, on arrête tout
 		panic("Mapping d'une page à l'adresse %08x déjà utilisé", vaddr);
 	}
 
 	memset(&pte, 0, sizeof(pte_t));
-
-	if(rights & MAP_WRITE) {
+	if(rights & PAGING_WRITE) {
 		pte->write = 1;
 	}
-	if(rights & MAP_USER) {
+	if(rights & PAGING_USER) {
 		pte->user = 1;
 	}
 	
-	pte->present = 1;
 	pte_set_address(pte, paddr);
+	pte->present = 1;
+	use_frame(paddr);
 	invlpg(vaddr);
 }
